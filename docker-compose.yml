@@ -1,0 +1,13 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_DEBUG: "0"
+      DJANGO_SECRET_KEY: "change-me-in-production"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1"
+      # Optional overrides (see .env.example):
+      # OSRM_BASE_URL: "https://routing.openstreetmap.de/routed-car"
+      # TRUCK_DURATION_FACTOR: "1.1"
+    restart: unless-stopped

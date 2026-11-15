@@ -1,0 +1,16 @@
+# Render.com blueprint: one Docker web service serving both the API and the UI.
+services:
+  - type: web
+    name: weather-truck-routing
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health/
+    autoDeploy: true
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "0"
+      - key: WEB_CONCURRENCY
+        value: "2"
+      # RENDER_EXTERNAL_HOSTNAME is injected by Render and added to ALLOWED_HOSTS automatically.
