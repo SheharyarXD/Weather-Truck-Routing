@@ -28,6 +28,28 @@ interface Props {
 
 const US_CENTER: [number, number] = [39.5, -98.35];
 
+const DATA_CREDITS =
+  'Weather: <a href="https://open-meteo.com/">Open-Meteo</a> · Routing: <a href="https://project-osrm.org/">OSRM</a>';
+
+/** Keyless basemaps. Pick with VITE_BASEMAP, or supply VITE_TILE_URL / VITE_TILE_ATTRIBUTION for any other provider. */
+const BASEMAPS: Record<string, { url: string; attribution: string; maxZoom: number }> = {
+  'esri-gray': {
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, OpenStreetMap contributors',
+    maxZoom: 16,
+  },
+  osm: {
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+  },
+};
+
+const env = import.meta.env as Record<string, string | undefined>;
+const BASEMAP = env.VITE_TILE_URL
+  ? { url: env.VITE_TILE_URL, attribution: env.VITE_TILE_ATTRIBUTION ?? '', maxZoom: 19 }
+  : BASEMAPS[env.VITE_BASEMAP ?? 'esri-gray'] ?? BASEMAPS['esri-gray'];
+
 function FitToPlan({ plan }: { plan: PlanResponse | null }) {
   const map = useMap();
   useEffect(() => {
@@ -74,15 +96,24 @@ function EndpointMarkers({ origin, destination }: { origin: Place; destination: 
   );
 }
 
+/** Exposes the Leaflet map for end-to-end tooling (e.g. tools/walkthrough records clicks on checkpoints). */
+function exposeMap(map: L.Map | null) {
+  (window as unknown as { __leafletMap?: L.Map | null }).__leafletMap = map;
+}
+
 export function MapView({ plan, selectedId, onSelect, heatmap, metric, hour, showHeatmap, focus }: Props) {
   return (
-    <MapContainer center={US_CENTER} zoom={4} minZoom={3} zoomControl={false} preferCanvas className="map">
-      <TileLayer
-        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a> · Weather: <a href="https://open-meteo.com/">Open-Meteo</a> · Routing: <a href="https://project-osrm.org/">OSRM</a>'
-        subdomains="abcd"
-        maxZoom={19}
-      />
+    <MapContainer
+      center={US_CENTER}
+      zoom={4}
+      minZoom={3}
+      maxZoom={BASEMAP.maxZoom}
+      zoomControl={false}
+      preferCanvas
+      className="map"
+      ref={exposeMap}
+    >
+      <TileLayer url={BASEMAP.url} attribution={`${BASEMAP.attribution} · ${DATA_CREDITS}`} maxZoom={BASEMAP.maxZoom} />
       <ZoomControl position="topright" />
       <HeatmapLayer data={heatmap} metric={metric} hour={hour} visible={showHeatmap && !!plan} />
       {plan && (

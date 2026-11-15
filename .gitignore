@@ -8,7 +8,7 @@ backend/staticfiles/*
 !backend/staticfiles/.gitkeep
 
 # Node / Vite
-frontend/node_modules/
+node_modules/
 frontend/dist/
 frontend/.vite/
 
@@ -21,3 +21,8 @@ frontend/.vite/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Walkthrough video output
+walkthrough.mp4
+walkthrough.webm
+tools/walkthrough/out/

@@ -1,4 +1,22 @@
-# Loom walkthrough script (target 6–8 minutes)
+# Walkthrough
+
+## Narration-free video (generated)
+
+`walkthrough.mp4` is produced automatically by [tools/walkthrough/record.js](tools/walkthrough/record.js): it starts
+the Django server with the built frontend, drives the real UI in a headless Chromium with Playwright, overlays large
+captions and a visible cursor, records at 1920×1080 and converts the recording to MP4 (≈5 minutes, no audio). Upload
+it to Loom as-is, or use it as the screen track and add narration from the script below.
+
+```bash
+cd frontend && npm run build && cd ../backend && python manage.py collectstatic --noinput
+cd ../tools/walkthrough && npm install && npx playwright install chromium
+npm run record          # env: ORIGIN / DESTINATION / LOAD / OUTPUT / APP_URL
+```
+
+Pick an origin/destination pair that has some weather on the day you record; the default (Portland → Boise,
+45,000 lb) is only a starting point.
+
+## Narrated Loom script (target 6–8 minutes)
 
 Record at 1080p with the browser on the left two-thirds of the screen and your editor ready in another tab.
 Have the app already loaded (empty state) before pressing record. Times are cumulative.

@@ -337,4 +337,4 @@ WALKTHROUGH.md                  Script for the Loom video
 
 Routing data © [OSRM](https://project-osrm.org/) / OpenStreetMap contributors · Geocoding © [Photon](https://photon.komoot.io/)
 and [Nominatim](https://nominatim.org/) · Weather © [Open-Meteo](https://open-meteo.com/) (CC BY 4.0) ·
-Basemap © [CARTO](https://carto.com/attributions) / OpenStreetMap contributors.
+Basemap tiles © Esri (World Light Gray Canvas; switchable to OpenStreetMap or any XYZ provider via `VITE_BASEMAP` / `VITE_TILE_URL`).

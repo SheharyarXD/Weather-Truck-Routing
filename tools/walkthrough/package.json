@@ -1,0 +1,8 @@
+{
+  "name": "walkthrough-recorder",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Records the no-narration walkthrough video of the running app with Playwright.",
+  "scripts": { "record": "node record.js" },
+  "devDependencies": { "playwright": "^1.48.0", "ffmpeg-static": "^5.2.0" }
+}
