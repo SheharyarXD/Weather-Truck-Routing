@@ -51,6 +51,10 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   return body as T;
 }
 
+export function checkHealth(signal?: AbortSignal): Promise<{ status: string }> {
+  return request<{ status: string }>('/health/', { signal });
+}
+
 export function planTrip(body: PlanRequest, signal?: AbortSignal): Promise<PlanResponse> {
   return request<PlanResponse>('/plan/', { method: 'POST', body: JSON.stringify(body), signal });
 }

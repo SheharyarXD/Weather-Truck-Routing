@@ -369,6 +369,21 @@ button.ghost:hover {
   margin-top: 10px;
 }
 
+.api-status {
+  margin-top: 0;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.small-spinner {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  border-width: 2px;
+  margin-top: 2px;
+}
+
 /* ---------------------------------------------------------- loading/intro */
 
 .loading-panel {

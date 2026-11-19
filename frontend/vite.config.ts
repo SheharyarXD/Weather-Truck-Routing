@@ -3,8 +3,9 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig(({ command }) => ({
   plugins: [react()],
-  // In production Django + WhiteNoise serve the build from /static/.
-  base: command === 'build' ? '/static/' : '/',
+  // Django + WhiteNoise serve the production build from /static/. GitHub Pages serves it from
+  // /<repository>/, which the Pages workflow passes in as VITE_BASE.
+  base: process.env.VITE_BASE ?? (command === 'build' ? '/static/' : '/'),
   server: {
     port: 5173,
     proxy: {

@@ -64,7 +64,7 @@ Have the app already loaded (empty state) before pressing record. Times are cumu
 - `routing.py` – `fetch_route_options`: OSRM alternatives + perpendicular via-point detours + similarity de-dup.
 - `summary.py` – ranking key and the generated explanation.
 - `frontend/src/components/map/HeatCanvasLayer.ts` – the IDW canvas heatmap.
-- Show `pytest` output (87 tests) and `npm test`.
+- Show `pytest` output (88 tests) and `npm test`.
 
 ## 7:00 – 7:30 · Deployment and wrap-up
 - Single Docker image (frontend built into Django static files, served by WhiteNoise + gunicorn); `render.yaml`

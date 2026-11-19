@@ -168,6 +168,33 @@ def test_geocode_endpoint(client, monkeypatch):
     assert client.get("/api/geocode/?q=d").status_code == 400
 
 
+def test_cors_preflight_allows_the_github_pages_origin(client, settings):
+    settings.CORS_ALLOW_ALL_ORIGINS = False
+    settings.CORS_ALLOWED_ORIGINS = ["https://sheharyarxd.github.io"]
+    response = client.options(
+        "/api/plan/",
+        HTTP_ORIGIN="https://sheharyarxd.github.io",
+        HTTP_ACCESS_CONTROL_REQUEST_METHOD="POST",
+        HTTP_ACCESS_CONTROL_REQUEST_HEADERS="content-type",
+    )
+    assert response.status_code == 200
+    assert response["Access-Control-Allow-Origin"] == "https://sheharyarxd.github.io"
+    assert "content-type" in response["Access-Control-Allow-Headers"].lower()
+
+    # The actual request must carry the header too, or the browser hides the response (even errors).
+    posted = client.post("/api/plan/", data="{}", content_type="application/json",
+                         HTTP_ORIGIN="https://sheharyarxd.github.io")
+    assert posted.status_code == 400
+    assert posted["Access-Control-Allow-Origin"] == "https://sheharyarxd.github.io"
+
+    other = client.options(
+        "/api/plan/",
+        HTTP_ORIGIN="https://evil.example.com",
+        HTTP_ACCESS_CONTROL_REQUEST_METHOD="POST",
+    )
+    assert "Access-Control-Allow-Origin" not in other
+
+
 def test_spa_fallback_served_for_unknown_paths(client):
     response = client.get("/some/client/route")
     assert response.status_code == 200

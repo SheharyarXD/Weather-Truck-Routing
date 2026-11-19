@@ -5,8 +5,11 @@ travel time**. It generates three route options, samples the forecast every 10 /
 estimated arrival time** at each checkpoint, classifies the risk with the assessment's wind / rain / snow and load
 rules, recommends a route, and shows everything on a map together with a smooth 0–48 h corridor weather heatmap.
 
-- **Live app:** _add your hosted URL here_
-- **Loom walkthrough:** _add your Loom link here_ (script in [WALKTHROUGH.md](WALKTHROUGH.md))
+- **Live app:** https://sheharyarxd.github.io/Weather-Truck-Routing/
+  (UI on GitHub Pages, Django API on Render's free tier: the first request after a quiet period can take up to a
+  minute while the API wakes up, and the page shows a notice meanwhile)
+- **Loom walkthrough:** https://www.loom.com/share/ed849d5909c44ecb96463ff10c4e2b04
+- **Repository:** https://github.com/SheharyarXD/Weather-Truck-Routing
 
 No API keys are required: routing uses [OSRM](https://project-osrm.org/), geocoding uses
 [Photon](https://photon.komoot.io/) (with Nominatim as a fallback) and weather uses [Open-Meteo](https://open-meteo.com/).
@@ -248,12 +251,28 @@ docker compose up --build      # http://localhost:8000 serves the UI and the API
 
 ## Deployment
 
-The repository contains a production `Dockerfile` (multi-stage: Node builds the UI, Python serves it) and a
-`render.yaml` blueprint.
+The live deployment is split in two, because GitHub Pages can only serve static files:
 
-**Render (free tier):** New → Blueprint → select this repository. Render builds the Dockerfile, injects
-`RENDER_EXTERNAL_HOSTNAME` (added to `ALLOWED_HOSTS` automatically) and generates `DJANGO_SECRET_KEY`. The health check
-is `/api/health/`.
+```
+https://sheharyarxd.github.io/Weather-Truck-Routing/   React build (GitHub Pages, .github/workflows/pages.yml)
+        │  fetch, CORS
+        ▼
+https://sheharyarxd-weather-routing.onrender.com/api/  Django API (Render free tier, render.yaml + Dockerfile)
+```
+
+**1. API on Render (free tier):** New → Blueprint → select this repository. Render builds the Dockerfile, injects
+`RENDER_EXTERNAL_HOSTNAME` (added to `ALLOWED_HOSTS` automatically), generates `DJANGO_SECRET_KEY` and sets
+`CORS_ALLOWED_ORIGINS` to the GitHub Pages origin. The health check is `/api/health/`. The Render URL also serves the
+complete app on its own.
+
+**2. UI on GitHub Pages:** in the repository settings, set Pages → Build and deployment → Source to **GitHub
+Actions**. Every push to `main` then builds the frontend with `VITE_BASE=/<repository>/` and
+`VITE_API_BASE=https://sheharyarxd-weather-routing.onrender.com/api` and publishes it. If Render assigns a different
+URL, set the repository variable `API_BASE_URL` (Settings → Secrets and variables → Actions → Variables) to
+`https://<your-service>.onrender.com/api` and re-run the workflow.
+
+Free Render services sleep after 15 minutes without traffic. The page pings `/api/health/` as soon as it loads, so the
+API wakes while the driver fills in the form, and a notice explains the wait.
 
 **Any other Docker host** (Railway, Fly.io, a VPS): build the image and set `DJANGO_SECRET_KEY`,
 `DJANGO_ALLOWED_HOSTS=<your host>` and optionally `WEB_CONCURRENCY`. Set `VITE_API_BASE` only if the UI is hosted on a
@@ -262,9 +281,9 @@ different origin than the API (then also set `CORS_ALLOWED_ORIGINS`).
 ## Tests
 
 ```bash
-cd backend && pytest             # 87 tests: risk thresholds & load rules, geo maths, checkpoints/ETAs,
+cd backend && pytest             # 88 tests: risk thresholds & load rules, geo maths, checkpoints/ETAs,
                                  # ranking & explanations, corridor grid, Open-Meteo client (mocked HTTP),
-                                 # OSRM parsing + detour synthesis (fake router), API contract & validation
+                                 # OSRM parsing + detour synthesis (fake router), API contract, validation, CORS
 cd frontend && npm run typecheck && npm test && npm run build
 ```
 
@@ -329,7 +348,9 @@ frontend/
   src/lib/                      risk colours, formatting, geo helpers, heatmap colour scales (+ vitest)
   src/components/               Form, autocomplete, recommendation, route cards, checkpoint table, forecast controls
   src/components/map/           Map, route layers, checkpoint markers, labels, truck markers, canvas heatmap
-Dockerfile, docker-compose.yml, render.yaml, .env.example, .github/workflows/ci.yml
+Dockerfile, docker-compose.yml, render.yaml, .env.example
+.github/workflows/ci.yml        Tests, typecheck and build on every push
+.github/workflows/pages.yml     Deploys the frontend to GitHub Pages
 WALKTHROUGH.md                  Script for the Loom video
 ```
 

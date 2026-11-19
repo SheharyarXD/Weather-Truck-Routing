@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { describeError, fetchHeatmap, planTrip } from './api/client';
+import { useApiStatus } from './api/useApiStatus';
 import { ForecastControls } from './components/ForecastControls';
 import { PlanForm } from './components/PlanForm';
 import { RecommendationPanel } from './components/RecommendationPanel';
@@ -28,6 +29,7 @@ export default function App() {
   const [playing, setPlaying] = useState(false);
 
   const abortRef = useRef<AbortController | null>(null);
+  const apiStatus = useApiStatus();
 
   const submit = useCallback(async (request: PlanRequest) => {
     abortRef.current?.abort();
@@ -101,6 +103,21 @@ export default function App() {
             <p>Compare route options by forecast risk, load weight and drive time.</p>
           </div>
         </header>
+
+        {apiStatus === 'waking' && (
+          <div className="alert alert-warning api-status" role="status">
+            <div className="spinner small-spinner" />
+            <div>
+              <strong>Waking up the API server…</strong> It runs on a free hosting tier that sleeps when idle, so the
+              first request can take up to a minute. You can fill in the form meanwhile.
+            </div>
+          </div>
+        )}
+        {apiStatus === 'offline' && (
+          <div className="alert alert-error api-status" role="alert">
+            The API server is not reachable right now. Please reload the page in a minute.
+          </div>
+        )}
 
         <PlanForm onSubmit={submit} busy={planning} />
 
